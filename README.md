@@ -7,18 +7,21 @@ This is an independent community tournament tool. It is not an official KRAFTON 
 This is an independent community tournament tool. It is not an official KRAFTON product, is not KRAFTON-affiliated, and does not include proprietary BGMI telemetry.
 
 ## Requirements
+
 - Node.js 20+
 - OBS Studio 28+ recommended
 - Windows, macOS or Linux
 - MongoDB / MongoDB Atlas optional for persistence across deployments; local JSON works for rehearsal
 
 ## Upgrade from V4.4 without losing your event
+
 1. Stop the old server with `Ctrl+C` and back up its entire project folder.
 2. Extract V4.5 to a new folder. The ZIP intentionally omits the generated `data/tournament.json` so it cannot silently overwrite an organizer's event data.
 3. Before the first launch, copy these files from the old project's `data` folder into V4.5's `data` folder when they exist: `tournament.json`, `admin.json`, `captains.json`, and `.session-secret`. Copy your `.env` file separately if you use MongoDB or deployment settings. Keep these private.
 4. Run the start commands below. V4.5 normalizes the tournament state to schema version 8 on load.
 
 ## Start
+
 Open PowerShell in the extracted project folder:
 
 ```powershell
@@ -33,6 +36,7 @@ For first run, open `http://localhost:3000/login` and create the administrator a
 By default, local development binds to `127.0.0.1` (this computer only). For a hosted deployment, configure `NODE_ENV=production`, HTTPS at the reverse proxy, and use the supplied `BIND_HOST`/`TRUST_PROXY` settings as appropriate. Do not expose the development server directly to the internet.
 
 ## GitHub and Vercel
+
 This repository includes `vercel.json` and `api/index.js` so Vercel can build and serve the Express HTTP routes. Before deploying, add these Vercel environment variables:
 
 - `NODE_ENV=production`
@@ -58,6 +62,7 @@ git push -u origin main
 For Vercel, import that GitHub repository in the Vercel dashboard, set the environment variables above, and deploy. The project has no build step; Vercel uses `api/index.js` as the Node function entrypoint.
 
 ## URLs
+
 - Operator control room (admin account required): `http://localhost:3000/operator`
 - Captain/team registration portal: `http://localhost:3000/register`
 - Transparent OBS Browser Source: `http://localhost:3000/overlay`
@@ -66,6 +71,7 @@ For Vercel, import that GitHub repository in the Vercel dashboard, set the envir
 - Admin-only registration CSV: `http://localhost:3000/api/registrations.csv`
 
 ## Captain registration and anti-duplicate rules
+
 1. The organizer configures the administrator account first.
 2. A captain creates an account with name, email, mobile number and a password of at least 12 characters, or signs in to an existing account.
 3. Mobile number inputs strip all non-digits in the browser; the server accepts digits only (10–15 digits).
@@ -75,9 +81,11 @@ For Vercel, import that GitHub repository in the Vercel dashboard, set the envir
 7. The captain can sign in again to view the saved application status. The account does not allow a second application after rejection; contact the organizer to resolve changes or eligibility questions.
 
 ### Important identity-verification limitation
+
 Captain login, password hashing, one-team-per-account, unique email/phone checks and rate limiting are implemented. However, **email/SMS OTP ownership verification is not configured** in this project. Without a configured verification provider, a determined person could create accounts using alternate contact details. Before public production, integrate an email/SMS verification service (and preferably CAPTCHA/abuse monitoring) and verify your event eligibility rules. Do not treat an unverified email or phone as proven identity.
 
 ## Broadcast production features
+
 - BGMI-inspired dark gunmetal / amber broadcast graphics, angular panels, match counter and squad status HUD.
 - Current match setup, 2–16 team lineups, group selection, team finish controls and player finish attribution.
 - Current-match MVP calculated from recorded player finishes; overall top fragger aggregated from finalized match snapshots plus current unfinalized match data.
@@ -87,8 +95,8 @@ Captain login, password hashing, one-team-per-account, unique email/phone checks
 - Map Feed scene can display an organizer-configured map image URL and match/map label.
 - Match results and cumulative standings with live Socket.IO state synchronization.
 
-
 ### V4.5 production rundown
+
 - Configure event logo, caster portrait/name/tagline, theme audio URL or `/assets/` path, and stream-start duration in Broadcast Control.
 - For a self-hosted licensed track, create `public/assets/` and put the media file there; use a URL such as `/assets/tournament-theme.mp3`. The HTML audio element loops only during the full-screen stream-start slate and stops when the production leaves that state. OBS browser audio autoplay may be blocked; use an OBS Media Source fallback when needed.
 - Trigger **Stream starts · 20 min**: full-screen event logo/title and countdown appear; the server automatically changes the overlay state to full-screen caster when the countdown reaches zero.
@@ -98,6 +106,7 @@ Captain login, password hashing, one-team-per-account, unique email/phone checks
 - BGMI UID fields are numeric and are used to deduplicate player identities for the overall top-fragger calculation when present. They help staff verify registrations manually; this app does not verify IDs against a BGMI API.
 
 ### V4.4 smooth transition test
+
 - Keep one OBS Browser Source open at `http://localhost:3000/overlay` (1920×1080, 30 FPS) over the gameplay source.
 - In the operator dashboard, change states in this order: Pre-show → Caster intro → 30-second countdown → Live match → Current match MVP → Map feed → Match results → Overall standings → Intermission → Live match.
 - The overlay panels now fade/transform both in and out over approximately 320 ms; don't reload the Browser Source between states.
@@ -105,12 +114,15 @@ Captain login, password hashing, one-team-per-account, unique email/phone checks
 - The map panel is a configured image/graphic. A real moving gameplay map must be added as its own OBS capture/video source.
 
 ### Player finish attribution
+
 In Live Match Operations, use `+ PLAYER FINISH` when the player who earned a finish is known. This increments both that player's finish count and the squad's total finish count. Use `+ UNASSIGNED FINISH` only when the squad finish is known but player attribution is not. **Do not record the same finish using both controls.** Player MVP and top-fragger graphics are only as accurate as the player-level finish entries recorded by the operator.
 
 ### Map feed limitation
+
 The `Map Feed` graphic can show a map image URL and broadcast layout. It does **not** automatically capture BGMI's live in-game map or receive player coordinates. For a real moving observer/map feed, create an OBS scene with the relevant authorized observer capture/video source. Native OBS scene switching/source automation is not integrated in this version; the dashboard currently controls the web overlay state.
 
 ## OBS setup
+
 1. Set the OBS canvas/output layout to 1920×1080 (16:9) unless your designed stream layout uses another aspect ratio.
 2. Add your BGMI gameplay/observer capture.
 3. Add a Browser Source above gameplay at `http://localhost:3000/overlay`, set width 1920, height 1080, FPS 30.
@@ -121,6 +133,7 @@ The `Map Feed` graphic can show a map image URL and broadcast layout. It does **
 To combine the overlay with a real moving map video, add the observer map feed as a separate OBS source/scene. Verify that the game's broadcast and asset usage is permitted for your event.
 
 ## Access control and security
+
 - Admin pages and admin APIs (operator dashboard, CSV exports and health) require an administrator session.
 - Tournament write actions from Socket.IO require an authenticated administrator session; an unauthenticated overlay socket receives public display state only.
 - Captain account endpoints are role-specific. Captain sessions cannot access operator pages or admin socket commands.
@@ -131,12 +144,14 @@ To combine the overlay with a real moving map video, add the observer map feed a
 - This software has not received a professional penetration test. Use HTTPS, CAPTCHA, verified contact ownership, secure backups and monitored hosting before a public competition.
 
 ## Storage
+
 - Blank `MONGODB_URI`: `data/tournament.json` is the local tournament store.
 - Configured `MONGODB_URI`: MongoDB is primary for tournament state and a local JSON recovery snapshot is maintained.
 - Administrator credentials are kept in `data/admin.json` and captain account hashes in `data/captains.json`; these files are excluded from version control by `.gitignore`. Back them up securely and never commit them.
 - MongoDB is used for session persistence when configured. With the local session store, users need to sign in again after server restart.
 
 ## Testing
+
 Run `npm run check` to check JavaScript syntax and package script configuration (V4.5 is version 4.5.0/schema version 8). Also smoke-test on the target machine before a live event:
 
 1. Anonymous `GET /operator` redirects to login; anonymous admin API/CSV requests return 401/redirect.
@@ -153,14 +168,17 @@ Run `npm run check` to check JavaScript syntax and package script configuration 
 12. Rehearse a full match and verify the actual observer map video is configured as an OBS source when required.
 
 ## Scoring defaults
+
 Sample default placement points: 1st=10, 2nd=6, 3rd=5, 4th=4, 5th=3, 6th=2, 7th=1 and 8th=1, with 1 point per finish. These are editable sample defaults, not a guarantee of current official rules. Confirm the applicable rulebook before competition.
 
 ## Public vs protected routes
+
 Intentionally public pages/endpoints are `/login` (to sign in), `/register` (captain account and registration portal), `/overlay` (read-only production graphics), `/api/public/registration-info` (event name, open/closed state and capacity counters), and the authentication endpoints needed to sign up/sign in. The first administrator setup endpoint is only allowed while no administrator is configured. Operator HTML, admin health/export endpoints, all tournament write commands, and registration review commands are administrator-protected. Captain registration and status endpoints require the current captain's own authenticated session. The public overlay receives sanitized display state only, with contact records and audit history omitted.
 
 Security is defense in depth, not an absolute guarantee. Captains have one application per account; duplicate team names, emails and phone numbers are rejected; account creation and registration attempts are rate-limited; and phone numbers are validated server-side. **Because contact ownership verification and CAPTCHA are not configured, this local version cannot prove that two different accounts are controlled by different real people.** Before publishing the portal to the internet, integrate email/SMS OTP verification and anti-abuse checks.
 
 ## V4.5 release notes and limitations
+
 - `schemaVersion` is now 8; the app normalizes older V4.4 JSON state on startup. The release archive excludes `data/tournament.json`, administrator credentials, captain credential hashes, session secrets, `.env`, and `node_modules`.
 - A BGMI UID is a numeric user-provided identifier for staff review; the software cannot query an official BGMI service to confirm ownership. Overall player finish aggregation prefers UID, with a team/name fallback for old match snapshots or slots without UID.
 - The 20-minute pre-stream slate, theme audio, full-screen caster, tournament format, selected group lineup, corner countdown and live HUD are overlay states. Stream-start completion and the 30-second match countdown are timed by the backend; the other cues are selected by the operator.
