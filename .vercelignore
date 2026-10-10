@@ -1,0 +1,7 @@
+node_modules/
+.env
+data/admin.json
+data/captains.json
+data/.session-secret
+data/tournament.json
+data/*.tmp

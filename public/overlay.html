@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>BGMI Broadcast V4.5 · Esports Show Flow</title>
+    <link rel="stylesheet" href="/overlay.css" />
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <audio id="showMusic" preload="none" loop></audio>
+    <main id="broadcast" class="broadcast state-live">
+      <div class="frame-corner corner-tl"></div>
+      <div class="frame-corner corner-br"></div>
+      <header class="header">
+        <div class="brand-mark">BG</div>
+        <div class="event-wrap">
+          <span class="event-label">BATTLEGROUNDS · LIVE PRODUCTION</span
+          ><strong id="eventName">BGMI COLLEGE CHAMPIONSHIP</strong>
+        </div>
+        <div class="header-match">
+          <small>MATCH</small><b id="matchNumber">01</b><i></i
+          ><span id="headerMap">ERANGEL · GROUP A</span>
+        </div>
+      </header>
+      <section class="scoreboard" id="scoreboard">
+        <div class="scoreboard-top">
+          <div><small>ON THE BATTLEGROUNDS</small><b>SQUAD STATUS</b></div>
+          <span class="mini-live"><i></i> LIVE</span>
+        </div>
+        <div class="title">
+          <span>#</span><span></span><span>SQUAD</span><span>LIVE</span
+          ><span>FIN</span><span>PTS</span>
+        </div>
+        <div id="teams"></div>
+      </section>
+      <section class="top-fragger" id="topFragger">
+        <div class="top-fragger-kicker"><i></i> OVERALL TOP FRAGGER</div>
+        <div class="fragger-line">
+          <div class="fragger-avatar">
+            <img id="topFraggerPhoto" alt="Top fragger" class="hidden" /><span
+              id="topFraggerInitials"
+              >?</span
+            >
+          </div>
+          <span class="fragger-team-badge" id="topFraggerTeamLogo">BG</span>
+          <div class="fragger-copy">
+            <strong id="topFraggerName">Awaiting frags</strong
+            ><span id="topFraggerTeam">—</span>
+          </div>
+          <div class="fragger-kills">
+            <b id="topFraggerKills">0</b><small>FIN</small>
+          </div>
+        </div>
+      </section>
+      <section class="full-card" id="fullCard">
+        <div class="card-topline">
+          <span class="kicker" id="cardKicker">MATCH RESULTS</span
+          ><span class="card-event" id="cardEvent">BGMI BROADCAST</span>
+        </div>
+        <h1 id="cardTitle">MATCH RESULTS</h1>
+        <div class="full-title">
+          <span>RANK</span><span>TEAM</span><span>FIN</span><span>PLACE</span
+          ><span>POINTS</span>
+        </div>
+        <div id="fullRows" class="full-rows"></div>
+      </section>
+      <section
+        class="stream-start-panel"
+        id="streamStartPanel"
+        aria-label="Tournament stream start countdown"
+      >
+        <div class="stream-start-art"></div>
+        <div class="stream-start-grid"></div>
+        <div class="stream-start-top">
+          <span class="show-flag"><i></i> TOURNAMENT BROADCAST</span
+          ><span class="show-season" id="streamStartOrganizer"
+            >ESPORTS OPERATIONS</span
+          >
+        </div>
+        <div class="stream-start-center">
+          <div class="stream-logo-frame">
+            <img
+              id="streamEventLogo"
+              class="hidden"
+              alt="Tournament logo"
+            /><span id="streamLogoFallback">BG</span>
+          </div>
+          <span class="stream-start-eyebrow"
+            >BATTLEGROUNDS · COMPETITIVE SERIES</span
+          >
+          <h1 id="streamStartEventName">BGMI COLLEGE CHAMPIONSHIP</h1>
+          <p id="streamStartFormat">96 TEAM SERIES</p>
+          <div class="stream-start-timer">
+            <small>LIVE BROADCAST BEGINS IN</small
+            ><strong id="streamStartClock">20:00</strong
+            ><span>PREPARE FOR DROP</span>
+          </div>
+        </div>
+        <div class="stream-start-bottom">
+          <span>PRODUCTION DESK <b>ONLINE</b></span
+          ><span id="streamStartMatchLabel">MATCH 01 · ERANGEL</span
+          ><span>STAY SHARP. PLAY FAIR.</span>
+        </div>
+      </section>
+      <section
+        class="format-panel"
+        id="formatPanel"
+        aria-label="Tournament format"
+      >
+        <div class="format-topline">
+          <span class="show-flag"><i></i> TOURNAMENT ROADMAP</span
+          ><span id="formatEventSmall">BGMI BROADCAST</span>
+        </div>
+        <div class="format-heading">
+          <span class="eyebrow">THE ROAD TO CHAMPION</span>
+          <h1>TOURNAMENT FORMAT</h1>
+          <p id="formatName">96 TEAM SERIES</p>
+        </div>
+        <div class="format-stages">
+          <article>
+            <span class="format-stage-index">PHASE 01</span>
+            <div class="format-stage-icon">01</div>
+            <h2>GROUP STAGE</h2>
+            <strong id="formatGroupCount">6 GROUPS</strong>
+            <p>16 squads in each group</p>
+            <small>ACCUMULATE POINTS</small>
+          </article>
+          <div class="format-connector">›</div>
+          <article>
+            <span class="format-stage-index">PHASE 02</span>
+            <div class="format-stage-icon">02</div>
+            <h2>SEMIFINALS</h2>
+            <strong id="formatSemiSlots">24 TEAMS</strong>
+            <p>Qualifiers advance</p>
+            <small>FIGHT FOR THE FINAL</small>
+          </article>
+          <div class="format-connector">›</div>
+          <article class="format-stage-final">
+            <span class="format-stage-index">PHASE 03</span>
+            <div class="format-stage-icon">03</div>
+            <h2>GRAND FINAL</h2>
+            <strong id="formatFinalSlots">16 TEAMS</strong>
+            <p>One champion</p>
+            <small>CLAIM THE CROWN</small>
+          </article>
+        </div>
+        <div class="format-footer">
+          <span id="formatOrganizer">ESPORTS OPERATIONS</span
+          ><b>EVERY FINISH COUNTS</b
+          ><span id="formatMatchMeta">MATCH 01 · GROUP A</span>
+        </div>
+      </section>
+      <section
+        class="lineup-panel"
+        id="lineupPanel"
+        aria-label="Match squad lineup"
+      >
+        <div class="lineup-stage-top">
+          <div>
+            <span class="show-flag"><i></i> MATCH LOBBY LOCKED</span>
+            <h1>TEAMS DROPPING IN</h1>
+            <p id="lineupSubtitle">MATCH 01 · GROUP A · ERANGEL</p>
+          </div>
+          <div class="lineup-event-mark" id="lineupEventMark">BGMI ESPORTS</div>
+        </div>
+        <div class="lineup-grid" id="lineupTeams"></div>
+        <div class="lineup-footer">
+          <span>ROSTER SYNCHRONIZED FROM TOURNAMENT CONTROL</span
+          ><b id="lineupTeamTotal">16 SQUADS</b
+          ><span>GOOD LUCK · HAVE FUN</span>
+        </div>
+      </section>
+      <aside
+        class="match-countdown-corner"
+        id="matchCountdownCorner"
+        aria-label="Match starting countdown"
+      >
+        <span><i></i> MATCH STARTS IN</span
+        ><strong id="matchCountdownCornerClock">00:30</strong
+        ><small id="matchCountdownCornerLabel">MATCH 01 · ERANGEL</small>
+      </aside>
+      <section class="countdown-panel" id="countdownPanel">
+        <div class="countdown-event">
+          <span class="eyebrow">GET READY · BATTLEGROUNDS</span
+          ><b id="countdownMatchLabel">MATCH 01 · GROUP A</b
+          ><small id="countdownMapLabel">ERANGEL</small>
+        </div>
+        <div class="countdown-clock-wrap">
+          <span class="clock-label">MATCH STARTS IN</span
+          ><strong id="countdownClock">30</strong
+          ><span class="clock-unit">SECONDS</span>
+        </div>
+        <div class="countdown-bottom">
+          <span class="countdown-pulse"></span><b>LOCK IN. DROP IN. DOMINATE.</b
+          ><span>LIVE BROADCAST</span>
+        </div>
+      </section>
+      <section class="caster-panel" id="casterPanel">
+        <div class="caster-background"></div>
+        <div class="caster-photo-wrap">
+          <img id="casterPhoto" alt="Caster" class="hidden" /><span
+            id="casterInitials"
+            >MC</span
+          >
+        </div>
+        <div class="caster-copy">
+          <span class="eyebrow">LIVE COMMENTARY · MATCH HOST</span>
+          <h1 id="casterName">MAIN CASTER</h1>
+          <p id="casterTagline">THE BATTLE STARTS NOW</p>
+          <div class="caster-divider">
+            <i></i><span id="casterEvent">BGMI COLLEGE CHAMPIONSHIP</span>
+          </div>
+        </div>
+        <div class="caster-stamp">BROADCAST<br /><b>LIVE</b></div>
+      </section>
+      <section class="mvp-panel" id="mvpPanel">
+        <div class="mvp-kicker">
+          <span class="eyebrow" id="mvpEyebrow">MATCH MVP</span
+          ><span class="mvp-stars">✦ ✦ ✦</span>
+        </div>
+        <div class="mvp-body">
+          <div class="mvp-photo-wrap">
+            <img id="mvpPhoto" alt="Player" class="hidden" /><span
+              id="mvpInitials"
+              >MVP</span
+            >
+            <div class="mvp-photo-rim"></div>
+          </div>
+          <div class="mvp-copy">
+            <span class="mvp-overline" id="mvpOverline"
+              >MOST VALUABLE PLAYER</span
+            >
+            <h1 id="mvpName">AWAITING FRAGS</h1>
+            <div class="mvp-team-line">
+              <img id="mvpTeamLogo" alt="Team logo" class="hidden" /><span
+                id="mvpTeam"
+                >—</span
+              >
+            </div>
+            <div class="mvp-divider"></div>
+            <div class="mvp-stat">
+              <strong id="mvpKills">0</strong><span>FINISHES</span><i></i
+              ><strong id="mvpMatches">MATCH 01</strong>
+            </div>
+          </div>
+        </div>
+        <div class="mvp-footer">
+          <span>BATTLEGROUNDS · PLAYER SPOTLIGHT</span
+          ><b id="mvpModeLabel">CURRENT MATCH MVP</b>
+        </div>
+      </section>
+      <section class="map-feed-panel" id="mapFeedPanel">
+        <div class="map-feed-header">
+          <div>
+            <span class="eyebrow">TACTICAL OBSERVER</span>
+            <h1>MAP FEED</h1>
+          </div>
+          <div class="map-feed-meta">
+            <b id="mapFeedMapName">ERANGEL</b
+            ><span id="mapFeedMatch">MATCH 01 · GROUP A</span>
+          </div>
+        </div>
+        <div class="map-canvas" id="mapCanvas">
+          <img id="mapFeedImage" class="hidden" alt="Tournament map feed" />
+          <div class="map-placeholder" id="mapPlaceholder">
+            <div class="radar-ring ring-one"></div>
+            <div class="radar-ring ring-two"></div>
+            <div class="radar-ring ring-three"></div>
+            <div class="island-shape island-one"></div>
+            <div class="island-shape island-two"></div>
+            <div class="map-axis"></div>
+            <span class="map-label label-n">N</span
+            ><span class="map-label label-w">W</span
+            ><span class="map-label label-e">E</span
+            ><span class="map-label label-s">S</span>
+            <div class="map-source-note">
+              MAP ART NOT CONFIGURED
+              <small
+                >Set a map image URL in Broadcast Control, or add the observer
+                map video as an OBS source.</small
+              >
+            </div>
+          </div>
+        </div>
+        <div class="map-feed-footer">
+          <span><i></i> OBSERVER MAP VIEW</span
+          ><b id="mapFeedEvent">BGMI BROADCAST</b
+          ><span>OPERATOR-ASSISTED DATA</span>
+        </div>
+      </section>
+      <section class="intermission" id="intermission">
+        <div class="intermission-grid"></div>
+        <div class="kicker">BGMI ESPORTS SERIES</div>
+        <h1 id="intermissionTitle">MATCH BREAK</h1>
+        <p>Next drop begins soon</p>
+        <div class="intermission-line">
+          <i></i><span>STAY ON THE BATTLEGROUNDS</span><i></i>
+        </div>
+      </section>
+      <div class="technical" id="technical">
+        <span class="technical-mark">!</span>
+        <div>
+          <b>TECHNICAL DIFFICULTIES</b
+          ><span>Production crew is restoring the broadcast.</span>
+        </div>
+      </div>
+    </main>
+    <script src="/overlay.js"></script>
+  </body>
+</html>
